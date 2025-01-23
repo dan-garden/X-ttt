@@ -124,7 +124,7 @@ export default class GameMain extends Component {
 		return (
 			<div id='GameMain'>
 
-				<h1>Play {this.props.game_type}</h1>
+				<h1>Play {this.props.game_type === 'comp' ? `computer (${this.props.difficulty})` : this.props.game_type}</h1>
 
 				<div id="game_stat">
 					<div id="game_stat_msg">{
@@ -208,30 +208,85 @@ export default class GameMain extends Component {
 
 //	------------------------	------------------------	------------------------
 
-	turn_comp () {
+	// turn_comp () {
 
-		let { cell_vals } = this.state
-		let empty_cells_arr = []
-
-
-		for (let i=1; i<=9; i++) 
-			!cell_vals['c'+i] && empty_cells_arr.push('c'+i)
-		// console.log(cell_vals, empty_cells_arr, rand_arr_elem(empty_cells_arr))
-
-		const c = rand_arr_elem(empty_cells_arr)
-		cell_vals[c] = 'o'
-
-		TweenMax.from(this.refs[c], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+	// 	let { cell_vals } = this.state
+	// 	let empty_cells_arr = []
 
 
-		// this.setState({
-		// 	cell_vals: cell_vals,
-		// 	next_turn_ply: true
-		// })
+	// 	for (let i=1; i<=9; i++) 
+	// 		!cell_vals['c'+i] && empty_cells_arr.push('c'+i)
+	// 	// console.log(cell_vals, empty_cells_arr, rand_arr_elem(empty_cells_arr))
 
-		this.state.cell_vals = cell_vals
+	// 	const c = rand_arr_elem(empty_cells_arr)
+	// 	cell_vals[c] = 'o'
 
-		this.check_turn()
+	// 	TweenMax.from(this.refs[c], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+
+
+	// 	// this.setState({
+	// 	// 	cell_vals: cell_vals,
+	// 	// 	next_turn_ply: true
+	// 	// })
+
+	// 	this.state.cell_vals = cell_vals
+
+	// 	this.check_turn()
+	// }
+
+	turn_comp() {
+			let { cell_vals, difficulty = 'hard' } = this.state 
+			let empty_cells_arr = []
+
+			for (let i=1; i<=9; i++) 
+					!cell_vals['c'+i] && empty_cells_arr.push('c'+i)
+
+			let c;
+			switch(difficulty) {
+					case 'easy':
+							c = rand_arr_elem(empty_cells_arr) // Random move
+							break;
+
+					case 'medium':
+							// First try to win, then block player win, else random
+							c = this.findWinningMove(cell_vals, 'o') || 
+									this.findWinningMove(cell_vals, 'x') || 
+									rand_arr_elem(empty_cells_arr)
+							break;
+
+					case 'hard':
+							// Prioritize center, corners, then edges
+							if (empty_cells_arr.includes('c5')) c = 'c5'
+							else {
+									const corners = empty_cells_arr.filter(x => ['c1','c3','c7','c9'].includes(x))
+									const edges = empty_cells_arr.filter(x => ['c2','c4','c6','c8'].includes(x))
+									c = corners.length ? rand_arr_elem(corners) : rand_arr_elem(edges)
+							}
+							break;
+			}
+
+			cell_vals[c] = 'o'
+			TweenMax.from(this.refs[c], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+			this.state.cell_vals = cell_vals
+			this.check_turn()
+	}
+
+	findWinningMove(board, player) {
+		for (const cell of Object.keys(board)) {
+			if (!board[cell]) {
+				const testBoard = Object.assign({}, board);
+				testBoard[cell] = player;
+				
+				for (const set of this.win_sets) {
+					if (testBoard[set[0]] === player &&
+							testBoard[set[1]] === player && 
+							testBoard[set[2]] === player) {
+						return cell;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 

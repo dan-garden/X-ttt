@@ -11,6 +11,8 @@ export default class Ttt extends Component {
 		super(props)
 
 		this.state = {
+			game_type: null,
+			difficulty: 'easy',
 			game_step: this.set_game_step()
 		}
 	}
@@ -36,10 +38,13 @@ export default class Ttt extends Component {
 						</div>
 					}
 
-					{game_step == 'set_game_type' && <SetGameType 
-														onSetType={this.saveGameType.bind(this)} 
+					{game_step == 'set_game_type' && <SetGameType
+														difficulty={this.state.difficulty}
+														onSetDifficulty={this.saveDifficulty.bind(this)}
+														startGame={this.startGame.bind(this)}
 													/>}
 					{game_step == 'start_game' && <GameMain 
+														difficulty={this.state.difficulty}
 														game_type={this.state.game_type}
 														onEndGame={this.gameEnd.bind(this)} 
 													/>}
@@ -60,8 +65,14 @@ export default class Ttt extends Component {
 
 //	------------------------	------------------------	------------------------
 
-	saveGameType (t) {
-		this.state.game_type = t
+	saveDifficulty (t) {
+		this.state.difficulty = t
+
+		this.upd_game_step();
+	}
+
+	startGame(t) {
+		this.state.game_type = t;
 
 		this.upd_game_step()
 	}
@@ -80,7 +91,7 @@ export default class Ttt extends Component {
 	upd_game_step () {
 
 		this.setState({
-			game_step: this.set_game_step()
+			game_step: this.set_game_step(),
 		})
 	}
 
