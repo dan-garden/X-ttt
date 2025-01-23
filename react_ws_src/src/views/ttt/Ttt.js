@@ -46,7 +46,7 @@ export default class Ttt extends Component {
 					{game_step == 'start_game' && <GameMain 
 														difficulty={this.state.difficulty}
 														game_type={this.state.game_type}
-														onEndGame={this.gameEnd.bind(this)} 
+														onEndGame={this.gameEnd.bind(this)}
 													/>}
 
 				</div>
@@ -82,6 +82,11 @@ export default class Ttt extends Component {
 	gameEnd (t) {
 		this.state.game_type = null
 
+		this.upd_game_step()
+	}
+
+	gameContinue () {
+		this.state.game_type = null
 		this.upd_game_step()
 	}
 

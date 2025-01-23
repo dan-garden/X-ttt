@@ -25,24 +25,35 @@ export default class GameMain extends Component {
 			['c3', 'c5', 'c7']
 		]
 
+		this.state = this.getDefaultState();
 
-		if (this.props.game_type != 'live')
-			this.state = {
-				cell_vals: {},
-				next_turn_ply: true,
-				game_play: true,
-				game_stat: 'Start game'
-			}
-		else {
+		if(this.props.game_type === 'live') {
 			this.sock_start()
-
-			this.state = {
-				cell_vals: {},
-				next_turn_ply: true,
-				game_play: false,
-				game_stat: 'Connecting'
-			}
 		}
+	}
+
+	getDefaultState() {
+		return this.props.game_type == 'comp' ? {
+			cell_vals: {},
+			next_turn_ply: true,
+			game_play: true,
+			game_stat: 'Start game'
+		} : {
+			cell_vals: {},
+			next_turn_ply: true,
+			game_play: false,
+			game_stat: 'Connecting'
+		}
+	}
+
+	resetGame () {
+		const resetState = this.getDefaultState();
+
+		for(let i=1; i<=9; i++) {
+			this.refs['c'+i].classList.remove('win', 'you', 'opp')
+		}
+
+		this.setState(resetState)
 	}
 
 //	------------------------	------------------------	------------------------
@@ -158,7 +169,18 @@ export default class GameMain extends Component {
 					</table>
 				</div>
 
-				<button type='submit' onClick={this.end_game.bind(this)} className='button'><span>End Game <span className='fa fa-caret-right'></span></span></button>
+				<button type='submit' onClick={this.end_game.bind(this)} className='button'>
+					<span><span className='fa fa-caret-left'></span>&nbsp;Go Back</span>
+				</button>
+
+				
+				{
+					this.props.game_type === 'comp' && this.state.game_stat === 'Finished' ? 
+					<button type='submit' onClick={this.continue_game.bind(this)} className='button'>
+						<span>Play Again&nbsp;<span className='fa fa-caret-right'></span></span>
+					</button>
+					: null
+				}
 
 			</div>
 		)
@@ -417,9 +439,15 @@ export default class GameMain extends Component {
 //	------------------------	------------------------	------------------------
 
 	end_game () {
-		this.socket && this.socket.disconnect();
+		if(this.socket) {
+			this.socket.disconnect();
+		}
 
 		this.props.onEndGame()
+	}
+
+	continue_game () {
+		this.resetGame();
 	}
 
 
