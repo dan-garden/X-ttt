@@ -5,7 +5,9 @@ export default class SetGameType extends Component {
 	constructor (props) {
 		super(props)
 
-		this.state = {}
+		this.state = {
+			game_type: 'comp',
+		}
 	}
 
 //	------------------------	------------------------	------------------------
@@ -14,36 +16,45 @@ export default class SetGameType extends Component {
 		return (
 			<div id='SetGameType'>
 
-				<h1>Choose game type</h1>
+				<h1>Configuration</h1>
 
-				<button type='submit' onClick={this.selTypeLive.bind(this)} className='button long'><span>Live against another player <span className='fa fa-caret-right'></span></span></button>
-				
-				&nbsp;&nbsp;&nbsp;&nbsp;
+				<div className='input_holder select_option'>
+					<label>Versus</label>
+					<select value={this.state.game_type} onChange={this.gameTypeSelect.bind(this)}>
+						<option value='comp'>Against a computer</option>
+						<option value='live'>Live against another player</option>
+					</select>
+				</div>
 
-				<button type='submit' onClick={this.selTypeComp.bind(this)} className='button long'><span>Against a computer <span className='fa fa-caret-right'></span></span></button>
+				{this.state.game_type === 'comp' ? (<div>
 
+					<div className='input_holder select_option'>
+						<label>Bot Difficulty</label>
+						<select value={this.props.difficulty} onChange={this.difficultySelect.bind(this)}>
+							<option value='easy'>Easy</option>
+							<option value='medium'>Medium</option>
+							<option value='hard'>Hard</option>
+						</select>
+					</div>
+
+
+				</div>) : (<div></div>)}
+
+				<button type='submit' onClick={this.startGame.bind(this)} className='button long'><span>Start Game <span className='fa fa-caret-right'></span></span></button>
 			</div>
 		)
 	}
 
-//	------------------------	------------------------	------------------------
-
-	selTypeLive (e) {
-		// const { name } = this.refs
-		// const { onSetType } = this.props
-		// onSetType(name.value.trim())
-
-		this.props.onSetType('live')
+	difficultySelect (e) {
+		this.props.onSetDifficulty(e.target.value)
 	}
 
-//	------------------------	------------------------	------------------------
+	gameTypeSelect (e) {
+		this.setState({ game_type: e.target.value })
+	}
 
-	selTypeComp (e) {
-		// const { name } = this.refs
-		// const { onSetType } = this.props
-		// onSetType(name.value.trim())
-
-		this.props.onSetType('comp')
+	startGame (e) {
+		this.props.startGame(this.state.game_type || 'comp')
 	}
 
 }

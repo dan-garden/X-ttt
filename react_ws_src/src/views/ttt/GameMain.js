@@ -7,7 +7,7 @@ import TweenMax from 'gsap'
 import rand_arr_elem from '../../helpers/rand_arr_elem'
 import rand_to_fro from '../../helpers/rand_to_fro'
 
-export default class SetName extends Component {
+export default class GameMain extends Component {
 
 	constructor (props) {
 		super(props)
@@ -25,31 +25,57 @@ export default class SetName extends Component {
 			['c3', 'c5', 'c7']
 		]
 
+		this.state = this.getDefaultState();
 
-		if (this.props.game_type != 'live')
-			this.state = {
-				cell_vals: {},
-				next_turn_ply: true,
-				game_play: true,
-				game_stat: 'Start game'
-			}
-		else {
+		if(this.props.game_type === 'live') {
 			this.sock_start()
-
-			this.state = {
-				cell_vals: {},
-				next_turn_ply: true,
-				game_play: false,
-				game_stat: 'Connecting'
-			}
 		}
+	}
+
+	getDefaultState() {
+		return this.props.game_type == 'comp' ? {
+			cell_vals: {},
+			next_turn_ply: true,
+			game_play: true,
+			game_stat: 'Start game'
+		} : {
+			cell_vals: {},
+			next_turn_ply: true,
+			game_play: false,
+			game_stat: 'Connecting'
+		}
+	}
+
+	resetGame () {
+		const resetState = this.getDefaultState();
+
+		for(let i=1; i<=9; i++) {
+			this.refs['c'+i].classList.remove('win', 'you', 'opp')
+		}
+
+		this.setState(resetState)
 	}
 
 //	------------------------	------------------------	------------------------
 
 	componentDidMount () {
-    	TweenMax.from('#game_stat', 1, {display: 'none', opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeIn})
-    	TweenMax.from('#game_board', 1, {display: 'none', opacity: 0, x:-200, y:-200, scaleX:0, scaleY:0, ease: Power4.easeIn})
+    	TweenMax.from('#game_stat', 1, {
+				display: 'none',
+				opacity: 0,
+				scaleX:0,
+				scaleY:0,
+				ease: Power4.easeIn
+			})
+			
+    	TweenMax.from('#game_board', 1, {
+				display: 'none',
+				opacity: 0,
+				x:-200,
+				y:-200,
+				scaleX:0,
+				scaleY:0,
+				ease: Power4.easeIn
+			})
 	}
 
 //	------------------------	------------------------	------------------------
@@ -79,9 +105,6 @@ export default class SetName extends Component {
 
 
 		this.socket.on('opp_turn', this.turn_opp_live.bind(this));
-
-
-
 	}
 
 //	------------------------	------------------------	------------------------
@@ -112,10 +135,15 @@ export default class SetName extends Component {
 		return (
 			<div id='GameMain'>
 
-				<h1>Play {this.props.game_type}</h1>
+				<h1>Play {this.props.game_type === 'comp' ? `computer (${this.props.difficulty})` : this.props.game_type}</h1>
 
 				<div id="game_stat">
-					<div id="game_stat_msg">{this.state.game_stat}</div>
+					<div id="game_stat_msg">{
+						this.state.game_stat === 'Finished' && <span className='emphasize'>{
+							this.state.game_winner === 'you' && 'You won' || 'Opponent won'
+						}</span>
+						|| this.state.game_stat
+					}</div>
 					{this.state.game_play && <div id="game_turn_msg">{this.state.next_turn_ply ? 'Your turn' : 'Opponent turn'}</div>}
 				</div>
 
@@ -141,7 +169,18 @@ export default class SetName extends Component {
 					</table>
 				</div>
 
-				<button type='submit' onClick={this.end_game.bind(this)} className='button'><span>End Game <span className='fa fa-caret-right'></span></span></button>
+				<button type='submit' onClick={this.end_game.bind(this)} className='button'>
+					<span><span className='fa fa-caret-left'></span>&nbsp;Go Back</span>
+				</button>
+
+				
+				{
+					this.props.game_type === 'comp' && this.state.game_stat === 'Finished' ? 
+					<button type='submit' onClick={this.continue_game.bind(this)} className='button'>
+						<span>Play Again&nbsp;<span className='fa fa-caret-right'></span></span>
+					</button>
+					: null
+				}
 
 			</div>
 		)
@@ -191,30 +230,89 @@ export default class SetName extends Component {
 
 //	------------------------	------------------------	------------------------
 
-	turn_comp () {
+	// turn_comp () {
 
-		let { cell_vals } = this.state
-		let empty_cells_arr = []
-
-
-		for (let i=1; i<=9; i++) 
-			!cell_vals['c'+i] && empty_cells_arr.push('c'+i)
-		// console.log(cell_vals, empty_cells_arr, rand_arr_elem(empty_cells_arr))
-
-		const c = rand_arr_elem(empty_cells_arr)
-		cell_vals[c] = 'o'
-
-		TweenMax.from(this.refs[c], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+	// 	let { cell_vals } = this.state
+	// 	let empty_cells_arr = []
 
 
-		// this.setState({
-		// 	cell_vals: cell_vals,
-		// 	next_turn_ply: true
-		// })
+	// 	for (let i=1; i<=9; i++) 
+	// 		!cell_vals['c'+i] && empty_cells_arr.push('c'+i)
+	// 	// console.log(cell_vals, empty_cells_arr, rand_arr_elem(empty_cells_arr))
 
-		this.state.cell_vals = cell_vals
+	// 	const c = rand_arr_elem(empty_cells_arr)
+	// 	cell_vals[c] = 'o'
 
-		this.check_turn()
+	// 	TweenMax.from(this.refs[c], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+
+
+	// 	// this.setState({
+	// 	// 	cell_vals: cell_vals,
+	// 	// 	next_turn_ply: true
+	// 	// })
+
+	// 	this.state.cell_vals = cell_vals
+
+	// 	this.check_turn()
+	// }
+
+	turn_comp() {
+			let { cell_vals } = this.state
+			let { difficulty = 'hard' } = this.props;
+
+			console.log('difficulty', difficulty)
+
+			let empty_cells_arr = []
+
+			for (let i=1; i<=9; i++) 
+					!cell_vals['c'+i] && empty_cells_arr.push('c'+i)
+
+			let c;
+			switch(difficulty) {
+					case 'easy':
+							c = rand_arr_elem(empty_cells_arr) // Random move
+							break;
+
+					case 'medium':
+							// First try to win, then block player win, else random
+							c = this.findWinningMove(cell_vals, 'o') || 
+									this.findWinningMove(cell_vals, 'x') || 
+									rand_arr_elem(empty_cells_arr)
+							break;
+
+					case 'hard':
+							// Prioritize center, corners, then edges
+							if (empty_cells_arr.includes('c5')) c = 'c5'
+							else {
+									const corners = empty_cells_arr.filter(x => ['c1','c3','c7','c9'].includes(x))
+									const edges = empty_cells_arr.filter(x => ['c2','c4','c6','c8'].includes(x))
+									c = corners.length ? rand_arr_elem(corners) : rand_arr_elem(edges)
+							}
+							break;
+			}
+
+			cell_vals[c] = 'o'
+			TweenMax.from(this.refs[c], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+			this.state.cell_vals = cell_vals
+			this.check_turn()
+	}
+
+	findWinningMove(board, player) {
+		for (const cell of Object.keys(board)) {
+			if (!board[cell]) {
+				const testBoard = Object.assign({}, board);
+				testBoard[cell] = player;
+				
+				for (const set of this.win_sets) {
+					if (testBoard[set[0]] === player &&
+							testBoard[set[1]] === player && 
+							testBoard[set[2]] === player) {
+						return cell;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 
@@ -227,7 +325,12 @@ export default class SetName extends Component {
 
 		cell_vals[cell_id] = 'x'
 
-		TweenMax.from(this.refs[cell_id], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+		TweenMax.from(this.refs[cell_id], 0.7, {
+			opacity: 0,
+			scaleX: 0,
+			scaleY: 0,
+			ease: Power4.easeOut
+		})
 
 		this.socket.emit('ply_turn', { cell_id: cell_id });
 
@@ -296,16 +399,22 @@ export default class SetName extends Component {
 		// win && console.log('win set: ', set)
 
 		if (win) {
-		
-			this.refs[set[0]].classList.add('win')
-			this.refs[set[1]].classList.add('win')
-			this.refs[set[2]].classList.add('win')
 
 			TweenMax.killAll(true)
-			TweenMax.from('td.win', 1, {opacity: 0, ease: Linear.easeIn})
+			TweenMax.from('td.win', 1, {
+				opacity: 0,
+				ease: Linear.easeIn
+			})
+
+			const game_winner = (cell_vals[set[0]] =='x' ? 'you' : 'opp');
+
+			this.refs[set[0]].classList.add('win', game_winner)
+			this.refs[set[1]].classList.add('win', game_winner)
+			this.refs[set[2]].classList.add('win', game_winner)
 
 			this.setState({
-				game_stat: (cell_vals[set[0]]=='x'?'You':'Opponent')+' win',
+				game_stat: 'Finished',
+				game_winner,
 				game_play: false
 			})
 
@@ -315,6 +424,7 @@ export default class SetName extends Component {
 		
 			this.setState({
 				game_stat: 'Draw',
+				game_winner: null,
 				game_play: false
 			})
 
@@ -333,9 +443,15 @@ export default class SetName extends Component {
 //	------------------------	------------------------	------------------------
 
 	end_game () {
-		this.socket && this.socket.disconnect();
+		if(this.socket) {
+			this.socket.disconnect();
+		}
 
 		this.props.onEndGame()
+	}
+
+	continue_game () {
+		this.resetGame();
 	}
 
 

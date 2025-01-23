@@ -1,9 +1,8 @@
 import React, { Component} from 'react'
 import { Link } from 'react-router'
 
-import SetName from './SetName'
+import NameInput from './NameInput'
 import SetGameType from './SetGameType'
-
 import GameMain from './GameMain'
 
 export default class Ttt extends Component {
@@ -12,6 +11,8 @@ export default class Ttt extends Component {
 		super(props)
 
 		this.state = {
+			game_type: null,
+			difficulty: 'easy',
 			game_step: this.set_game_step()
 		}
 	}
@@ -27,7 +28,7 @@ export default class Ttt extends Component {
 		return (
 			<section id='TTT_game'>
 				<div id='page-container'>
-					{game_step == 'set_name' && <SetName 
+					{game_step == 'set_name' && <NameInput 
 														onSetName={this.saveUserName.bind(this)} 
 												/>}
 
@@ -37,12 +38,15 @@ export default class Ttt extends Component {
 						</div>
 					}
 
-					{game_step == 'set_game_type' && <SetGameType 
-														onSetType={this.saveGameType.bind(this)} 
+					{game_step == 'set_game_type' && <SetGameType
+														difficulty={this.state.difficulty}
+														onSetDifficulty={this.saveDifficulty.bind(this)}
+														startGame={this.startGame.bind(this)}
 													/>}
 					{game_step == 'start_game' && <GameMain 
+														difficulty={this.state.difficulty}
 														game_type={this.state.game_type}
-														onEndGame={this.gameEnd.bind(this)} 
+														onEndGame={this.gameEnd.bind(this)}
 													/>}
 
 				</div>
@@ -61,8 +65,14 @@ export default class Ttt extends Component {
 
 //	------------------------	------------------------	------------------------
 
-	saveGameType (t) {
-		this.state.game_type = t
+	saveDifficulty (t) {
+		this.state.difficulty = t
+
+		this.upd_game_step();
+	}
+
+	startGame(t) {
+		this.state.game_type = t;
 
 		this.upd_game_step()
 	}
@@ -75,13 +85,18 @@ export default class Ttt extends Component {
 		this.upd_game_step()
 	}
 
+	gameContinue () {
+		this.state.game_type = null
+		this.upd_game_step()
+	}
+
 //	------------------------	------------------------	------------------------
 //	------------------------	------------------------	------------------------
 
 	upd_game_step () {
 
 		this.setState({
-			game_step: this.set_game_step()
+			game_step: this.set_game_step(),
 		})
 	}
 
