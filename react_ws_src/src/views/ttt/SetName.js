@@ -12,7 +12,7 @@ export default class SetName extends Component {
 
 	render () {
 		return (
-			<div id='SetName'>
+			<form id='SetName' onSubmit={this.saveName.bind(this)}>
 
 				<h1>Set Name</h1>
 
@@ -22,9 +22,9 @@ export default class SetName extends Component {
 				</div>
 
 
-				<button type='submit' onClick={this.saveName.bind(this)} className='button'><span>SAVE <span className='fa fa-caret-right'></span></span></button>
+				<button type='submit' className='button'><span>SAVE <span className='fa fa-caret-right'></span></span></button>
 
-			</div>
+			</form>
 		)
 	}
 
