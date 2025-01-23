@@ -1,9 +1,8 @@
 import React, { Component} from 'react'
 import { Link } from 'react-router'
 
-import SetName from './SetName'
+import NameInput from './NameInput'
 import SetGameType from './SetGameType'
-
 import GameMain from './GameMain'
 
 export default class Ttt extends Component {
@@ -27,7 +26,7 @@ export default class Ttt extends Component {
 		return (
 			<section id='TTT_game'>
 				<div id='page-container'>
-					{game_step == 'set_name' && <SetName 
+					{game_step == 'set_name' && <NameInput 
 														onSetName={this.saveUserName.bind(this)} 
 												/>}
 
