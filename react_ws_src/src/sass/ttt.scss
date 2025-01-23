@@ -148,7 +148,12 @@ section#TTT_game{
 			}
 
 			&.win {
-				background: rgb(9, 255, 0);
+				&.you {
+					background: rgb(9, 255, 0);
+				}
+				&.opp {
+					background: rgb(255, 0, 0);
+				}
 			}
 		}
 

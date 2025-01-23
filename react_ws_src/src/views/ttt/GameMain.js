@@ -48,8 +48,23 @@ export default class GameMain extends Component {
 //	------------------------	------------------------	------------------------
 
 	componentDidMount () {
-    	TweenMax.from('#game_stat', 1, {display: 'none', opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeIn})
-    	TweenMax.from('#game_board', 1, {display: 'none', opacity: 0, x:-200, y:-200, scaleX:0, scaleY:0, ease: Power4.easeIn})
+    	TweenMax.from('#game_stat', 1, {
+				display: 'none',
+				opacity: 0,
+				scaleX:0,
+				scaleY:0,
+				ease: Power4.easeIn
+			})
+			
+    	TweenMax.from('#game_board', 1, {
+				display: 'none',
+				opacity: 0,
+				x:-200,
+				y:-200,
+				scaleX:0,
+				scaleY:0,
+				ease: Power4.easeIn
+			})
 	}
 
 //	------------------------	------------------------	------------------------
@@ -79,9 +94,6 @@ export default class GameMain extends Component {
 
 
 		this.socket.on('opp_turn', this.turn_opp_live.bind(this));
-
-
-
 	}
 
 //	------------------------	------------------------	------------------------
@@ -115,7 +127,12 @@ export default class GameMain extends Component {
 				<h1>Play {this.props.game_type}</h1>
 
 				<div id="game_stat">
-					<div id="game_stat_msg">{this.state.game_stat}</div>
+					<div id="game_stat_msg">{
+						this.state.game_stat === 'Finished' && <span className='emphasize'>{
+							this.state.game_winner === 'you' && 'You won' || 'Opponent won'
+						}</span>
+						|| this.state.game_stat
+					}</div>
 					{this.state.game_play && <div id="game_turn_msg">{this.state.next_turn_ply ? 'Your turn' : 'Opponent turn'}</div>}
 				</div>
 
@@ -227,7 +244,12 @@ export default class GameMain extends Component {
 
 		cell_vals[cell_id] = 'x'
 
-		TweenMax.from(this.refs[cell_id], 0.7, {opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeOut})
+		TweenMax.from(this.refs[cell_id], 0.7, {
+			opacity: 0,
+			scaleX: 0,
+			scaleY: 0,
+			ease: Power4.easeOut
+		})
 
 		this.socket.emit('ply_turn', { cell_id: cell_id });
 
@@ -296,16 +318,22 @@ export default class GameMain extends Component {
 		// win && console.log('win set: ', set)
 
 		if (win) {
-		
-			this.refs[set[0]].classList.add('win')
-			this.refs[set[1]].classList.add('win')
-			this.refs[set[2]].classList.add('win')
 
 			TweenMax.killAll(true)
-			TweenMax.from('td.win', 1, {opacity: 0, ease: Linear.easeIn})
+			TweenMax.from('td.win', 1, {
+				opacity: 0,
+				ease: Linear.easeIn
+			})
+
+			const game_winner = (cell_vals[set[0]] =='x' ? 'you' : 'opp');
+
+			this.refs[set[0]].classList.add('win', game_winner)
+			this.refs[set[1]].classList.add('win', game_winner)
+			this.refs[set[2]].classList.add('win', game_winner)
 
 			this.setState({
-				game_stat: (cell_vals[set[0]]=='x'?'You':'Opponent')+' win',
+				game_stat: 'Finished',
+				game_winner,
 				game_play: false
 			})
 
@@ -315,6 +343,7 @@ export default class GameMain extends Component {
 		
 			this.setState({
 				game_stat: 'Draw',
+				game_winner: null,
 				game_play: false
 			})
 
