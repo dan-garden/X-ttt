@@ -32,10 +32,10 @@ export default class NameInput extends Component {
 
 	saveName (e) {
 		// const { name } = this.refs
-		// const { onNameInput } = this.props
-		// onNameInput(name.value.trim())
+		// const { onSetName } = this.props
+		// onSetName(name.value.trim())
 
-		this.props.onNameInput(this.refs.name.value.trim())
+		this.props.onSetName(this.refs.name.value.trim())
 	}
 
 }
