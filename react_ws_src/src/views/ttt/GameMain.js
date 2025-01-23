@@ -257,7 +257,11 @@ export default class GameMain extends Component {
 	// }
 
 	turn_comp() {
-			let { cell_vals, difficulty = 'hard' } = this.state 
+			let { cell_vals } = this.state
+			let { difficulty = 'hard' } = this.props;
+
+			console.log('difficulty', difficulty)
+
 			let empty_cells_arr = []
 
 			for (let i=1; i<=9; i++) 
